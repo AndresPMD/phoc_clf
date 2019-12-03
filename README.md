@@ -1,1 +1,3 @@
-# phoc_clf
+# FINE GRAINED CLASSIFICATION
+python = 3.7
+pytorch = 0.4.1
