@@ -1,3 +1,15 @@
-# FINE GRAINED CLASSIFICATION
-python = 3.7
-pytorch = 0.4.1
+# Fine-grained classification with textual cues
+
+## Install
+
+Create Conda environment
+
+    $ conda env create -f environment.yml
+
+Activate the environment
+
+    $ conda activate finegrain
+
+Train from scratch
+
+python3 train.py 
