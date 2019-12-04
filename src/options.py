@@ -22,7 +22,7 @@ class Options():
         parser.add_argument('--ocr', type=str, default = 'e2e_mlt', choices=['textspotter','deeptextspotter','e2e_mlt', 'yolo_phoc'],
                             help='Choose between OCRs.')
 
-        parser.add_argument('--model', type=str, default='baseNet', choices=['visualNet', 'lenet', 'baseNet', 'fisherNet', 'orig_fisherNet', 'TextNet'],
+        parser.add_argument('--model', type=str, default='baseNet', choices=['visualNet', 'lenet', 'baseNet', 'fisherNet', 'orig_fisherNet', 'TextNet', 'RMAC'],
                             help='Choose between models.')
 
         parser.add_argument('--attn', action='store_true', help='Attention module')
@@ -51,7 +51,7 @@ class Options():
         parser.add_argument('--save_weights', type=str, default=True, help='Store training weights True/False')
 
         # Optimization options
-        parser.add_argument('--epochs', '-e', type=int, default=60, help='Number of epochs to train.')
+        parser.add_argument('--epochs', '-e', type=int, default=40, help='Number of epochs to train.')
         parser.add_argument('--batch_size', '-b', type=int, default=64, help='Batch size.')
         parser.add_argument('--learning_rate', '-lr', type=float, default=1e-3, help='The Learning Rate.')
         parser.add_argument('--optim', '-o', type=str, default='radam', help='Optimizers: sgd, adam, radam(with lookAhead)')
@@ -67,7 +67,7 @@ class Options():
         parser.add_argument('--early_stop', '-es', type=int, default=10, help='Early stopping epochs.')
         # Acceleration
         parser.add_argument('--ngpu', type=int, default=1, help='0 = CPU, 1 = CUDA, 1 < DataParallel')
-        parser.add_argument('--prefetch', type=int, default=4, help='Pre-fetching threads.')
+        parser.add_argument('--prefetch', type=int, default=0, help='Pre-fetching threads.')
         # i/o
         parser.add_argument('--log', type=str, default='../results/',
                             help='Log folder.')

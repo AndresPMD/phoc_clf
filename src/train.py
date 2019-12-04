@@ -26,7 +26,7 @@ import sys
 from logger import LogMetric
 from utils import *
 from options import Options
-from data.data_generator import *
+from data.data_generator import load_data
 from models.models import load_model
 from custom_optim import *
 __author__ = "Andres Mafla Delgado; Sounak Dey"
@@ -63,18 +63,18 @@ def train(data_loader, net, optim, cuda, criterion, epoch, log_int, num_classes,
     # For Precision
     precision_per_class = [0.0] * num_classes
 
-    for i, (data, labels, textual_features) in enumerate(data_loader):
+    for i, (data, labels, textual_features, rmac_feats) in enumerate(data_loader):
         sample_size = np.shape(data)[0]
         if cuda:
-            data, labels, textual_features = data.cuda(), labels.cuda(), textual_features.cuda()
+            data, labels, textual_features , rmac_feats = data.cuda(), labels.cuda(), textual_features.cuda(), rmac_feats.cuda()
 
         data = Variable(data)
         labels = Variable(labels)
         textual_features = Variable(textual_features)
+        rmac_feats = Variable(rmac_feats)
 
         optim.zero_grad()
-
-        output, attn_mask = net(data, textual_features, sample_size)
+        output,_ = net(rmac_feats, textual_features, sample_size)
         loss = criterion(output, torch.max(labels, 1)[1])
 
         # Update the actor
@@ -173,13 +173,13 @@ def test(data_loader, net, cuda, num_classes, batch_size):
     precision_per_class = [0.0] * num_classes
 
     with torch.no_grad():
-        for i, (data, labels, textual_features) in enumerate(data_loader):
+        for i, (data, labels, textual_features, rmac_feats) in enumerate(data_loader):
             sample_size = np.shape(data)[0]
             if cuda:
-                data, labels, textual_features = data.cuda(), labels.cuda(), textual_features.cuda()
+                data, labels, textual_features, rmac_feats = data.cuda(), labels.cuda(), textual_features.cuda(), rmac_feats.cuda()
 
-            data = Variable(data)
-            output, attn_mask = net(data, textual_features, sample_size)
+            rmac_feats = Variable(rmac_feats)
+            output, attn_mask = net(rmac_feats, textual_features, sample_size)
 
             processed_batches += 1
             seen = batch_size * processed_batches

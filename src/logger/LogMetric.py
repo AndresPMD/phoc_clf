@@ -6,7 +6,7 @@ Log Metric.
 """
 
 import torch
-from tensorboardX import SummaryWriter
+#from tensorboardX import SummaryWriter
 import os
 
 
@@ -34,20 +34,21 @@ class Logger(object):
         self._remove(log_dir, force)
 
         # create the summary writer object
-        self._writer = SummaryWriter(log_dir)
+        #self._writer = SummaryWriter(log_dir)
 
         self.global_step = 0
 
     def __del__(self):
-        self._writer.close()
+        #self._writer.close()
+        return
 
     def add_scalar(self, name, scalar_value):
         assert isinstance(scalar_value, float), type(scalar_value)
-        self._writer.add_scalar(name, scalar_value, self.global_step)
+        #self._writer.add_scalar(name, scalar_value, self.global_step)
 
     def add_image(self, name, img_tensor):
         assert isinstance(img_tensor, torch.Tensor), type(img_tensor)
-        self._writer.add_image(name, img_tensor, self.global_step)
+        #self._writer.add_image(name, img_tensor, self.global_step)
 
     def step(self):
         self.global_step += 1

@@ -1,0 +1,1 @@
+UDA_VISIBLE_DEVICES=1 python train.py context --batch_size 64 --ocr e2e_mlt --embedding fisher --fusion mfb --data_path /datatmp/users/amafla --optim radam --model orig_fisherNet

@@ -34,9 +34,10 @@ def load_model(args, classes_number, embedding_size):
         return FisherNet(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
     elif args.model == 'orig_fisherNet':
         return Orig_FisherNet(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
+    elif args.model =='RMAC':
+        return RMACNet(args=args, num_classes=classes_number, embedding_size=embedding_size)
     elif args.model == 'TextNet':
         return TextNet(args = args, num_classes= classes_number, embedding_size=embedding_size, reduced_size = 512)
-
     else:
         raise NameError(args.model + ' not implemented!')
 
@@ -128,6 +129,22 @@ class Resnet_CNN(nn.Module):
         x = F.relu(self.fc1(self.fc1_bn(x)))
 
         return x, attn_mask
+
+class RMACNet(nn.Module):
+    def __init__(self, args , num_classes, embedding_size, pretrained=True, attention=True):
+        super(RMACNet, self).__init__()
+        self.args = args
+        self.embedding_size = embedding_size
+        self.num_classes = num_classes
+        self.pretrained = pretrained
+
+        self.fc1_bn = nn.BatchNorm1d(512)
+        self.fc1 = nn.Linear(512, num_classes)
+
+    def forward(self, im_feats, textual_features, sample_size):
+        x = self.fc1(self.fc1_bn(im_feats))  # Size (BS x 512)
+        return x, None
+
 
 
 class BaseNet(nn.Module):

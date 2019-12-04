@@ -15,6 +15,7 @@ sys.path.insert(0, '.')
 
 import numpy as np
 from skimage import io
+import pdb
 
 
 def Context_dataset(args, embedding_size):
@@ -38,7 +39,6 @@ def Context_dataset(args, embedding_size):
     else:
         print('OCR SELECTED NOT IMPLEMENTED')
     # Data Loaders
-
     train_transform = transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.RandomRotation(degrees=15),
@@ -50,8 +50,6 @@ def Context_dataset(args, embedding_size):
                              std=[0.229, 0.224, 0.225])
     ])
 
-    train_loader = Context_Train(args, gt_annotations, text_embedding, embedding_size, train_transform)
-
     test_transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
@@ -59,7 +57,8 @@ def Context_dataset(args, embedding_size):
                              std=[0.229, 0.224, 0.225])
     ])
 
-    test_loader = Context_Test(args, gt_annotations, text_embedding, embedding_size, test_transform, )
+    train_loader = Context_Train(args, gt_annotations, text_embedding, embedding_size, train_transform)
+    test_loader = Context_Test(args, gt_annotations, text_embedding, embedding_size, test_transform)
 
     return train_loader, test_loader, gt_annotations, text_embedding
 
@@ -94,6 +93,14 @@ class Context_Train(data.Dataset):
         label = torch.from_numpy(label)
         label = label.type(torch.FloatTensor)
 
+        # LOAD RMAC FEATURES
+
+        with open ('/tmp-network/user/amafla/data/Context/data/embeddings/'+image_name[:-3]+'json','r') as fp:
+            rmac_feats = json.load(fp)
+        rmac_feats = np.asarray(rmac_feats)
+        rmac_feats = torch.from_numpy(rmac_feats)
+        rmac_feats = rmac_feats.type(torch.FloatTensor)
+
         if self.args.embedding == 'w2vec' or self.args.embedding == 'fasttext' or self.args.embedding == 'glove' or self.args.embedding == 'bert':
             text_embedding = np.asarray(self.text_embedding[image_name])
         elif self.args.embedding == 'phoc':
@@ -123,7 +130,7 @@ class Context_Train(data.Dataset):
         text_features = torch.from_numpy(text_features)
         text_features = text_features.type(torch.FloatTensor)
 
-        return img, label, text_features
+        return img, label, text_features, rmac_feats
 
 class Context_Test(data.Dataset):
     def __init__(self, args, gt_annotations, text_embedding, embedding_size, transform=None):
@@ -152,6 +159,12 @@ class Context_Test(data.Dataset):
         label = torch.from_numpy(label)
         label = label.type(torch.FloatTensor)
 
+        with open('/tmp-network/user/amafla/data/Context/data/embeddings/' + image_name[:-3] + 'json', 'r') as fp:
+            rmac_feats = json.load(fp)
+        rmac_feats = np.asarray(rmac_feats)
+        rmac_feats = torch.from_numpy(rmac_feats)
+        rmac_feats = rmac_feats.type(torch.FloatTensor)
+
         if self.args.embedding == 'w2vec' or self.args.embedding == 'fasttext' or self.args.embedding == 'glove' or self.args.embedding == 'bert':
             text_embedding = np.asarray(self.text_embedding[image_name])
         elif self.args.embedding == 'phoc':
@@ -182,9 +195,5 @@ class Context_Test(data.Dataset):
         text_features = torch.from_numpy(text_features)
         text_features = text_features.type(torch.FloatTensor)
 
-        return img, label, text_features
-
-
-
-
+        return img, label, text_features, rmac_feats
 
