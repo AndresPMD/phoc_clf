@@ -45,7 +45,7 @@ def adjust_learning_rate(optimizer, epoch):
             param_group['lr'] = args.learning_rate
         print("Updating Learning rate to: ", args.learning_rate)
 
-def train(data_loader, net, optim, cuda, criterion, epoch, log_int, num_classes, batch_size):
+def train(data_loader, net, optim, cuda, criterion, epoch, log_int, num_classes, batch_size, criterion2, epsilon):
     batch_time = LogMetric.AverageMeter()
     batch_loss = LogMetric.AverageMeter()
     processed_batches = 0
@@ -74,9 +74,10 @@ def train(data_loader, net, optim, cuda, criterion, epoch, log_int, num_classes,
         rmac_feats = Variable(rmac_feats)
 
         optim.zero_grad()
-        output,_ = net(rmac_feats, textual_features, sample_size)
-        loss = criterion(output, torch.max(labels, 1)[1])
-
+        output, fusion_vec = net(rmac_feats, textual_features, sample_size)
+        Clf_Loss = criterion(output, torch.max(labels, 1)[1])
+        Sim_Loss = criterion2(fusion_vec, rmac_feats)
+        loss = Clf_Loss + epsilon * Sim_Loss
         # Update the actor
         loss.backward()
         optim.step()
@@ -179,7 +180,7 @@ def test(data_loader, net, cuda, num_classes, batch_size):
                 data, labels, textual_features, rmac_feats = data.cuda(), labels.cuda(), textual_features.cuda(), rmac_feats.cuda()
 
             rmac_feats = Variable(rmac_feats)
-            output, attn_mask = net(rmac_feats, textual_features, sample_size)
+            output, fusion_vec = net(rmac_feats, textual_features, sample_size)
 
             processed_batches += 1
             seen = batch_size * processed_batches
@@ -261,6 +262,7 @@ def main():
 
     class_weights = torch.FloatTensor(weights).cuda()
     criterion = nn.CrossEntropyLoss(weight=class_weights)
+    criterion2 = nn.MSELoss()
 
     evaluation = None
 
@@ -286,7 +288,7 @@ def main():
         adjust_learning_rate(optim, epoch)
         if args.test == 'False':
             print('\n*** TRAIN ***\n')
-            loss = train(train_loader, net, optim, args.cuda, criterion, epoch, args.log_interval, num_classes, args.batch_size)
+            loss = train(train_loader, net, optim, args.cuda, criterion, epoch, args.log_interval, num_classes, args.batch_size, criterion2, args.epsilon)
         print('\n*** TEST ***\n')
         performance = test(test_loader, net, args.cuda, num_classes, args.batch_size)
 
