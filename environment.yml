@@ -9,6 +9,7 @@ dependencies:
         - torchvision
         - tensorflow
         - tensorboard
-        - sklearn
+        - scikit-learn
+        - scikit-image
         - pip:
                 - tensorboardX
