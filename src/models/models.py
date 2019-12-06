@@ -188,16 +188,18 @@ class RMAC_Full_Net(nn.Module):
 
         # FISHER FEATURES
         textual_features = F.relu(self.FV_fc1(self.FV_bn1(textual_features.view(sample_size, -1))))
-        #pdb.set_trace()
+
         # Fuse
         if self.args.fusion != 'concat':
             fusion_vec = self.fusion([x.view(sample_size, -1),textual_features])
         else:
             fusion_vec = torch.cat((x, textual_features), 1)
+        # NORM
 
-        x = F.dropout(self.fc3(self.bn3(fusion_vec)), p=0.5, training=self.training)
+        fusion_vec_norm = F.normalize(fusion_vec, p=2, dim=1)
+        x = F.dropout(self.fc3(self.bn3(fusion_vec_norm)), p=0.5, training=self.training)
 
-        return x, fusion_vec
+        return x, fusion_vec_norm
 
 class BaseNet(nn.Module):
     def __init__(self, args, num_classes, embedding_size = 300, pretrained=True, attention=True):
@@ -286,6 +288,7 @@ class BaseNet(nn.Module):
         ranking_vector = F.relu(self.fc3(self.bn3(x)))
         x = F.dropout(self.fc4(self.bn4(ranking_vector)), p=0.3, training=self.training)
         '''
+
         x = F.dropout(self.fc3(self.bn3(x)), p=0.3, training=self.training)
 
         return x, attn_mask

@@ -9,4 +9,7 @@
 # a file for errors from the job
 #SBATCH --error=/home/amafla/phoc_clf/slurm/error%j
 
-python train.py context --ocr yolo_phoc --embedding fisher --fusion mfb --data_path /tmp-network/user/amafla/data/ --optim radam --save /home/amafla/phoc_clf/backup/ --model RMAC_Full --epsilon 1 --batch_size 128
+EP=$1
+FUSION=$2
+
+python train.py context --ocr yolo_phoc --embedding fisher --data_path /tmp-network/user/amafla/data/ --optim radam --batch_size 128 --model RMAC_Full --epsilon $EP --fusion $FUSION --save /home/amafla/phoc_clf/backup/
