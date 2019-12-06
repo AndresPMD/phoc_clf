@@ -74,7 +74,6 @@ class Context_Train(data.Dataset):
         self.image_list = list(gt_annotations['train'].keys())
         #Random.shuffle(self.image_list)
 
-
     def __len__(self):
         return len(self.gt_annotations['train'])
 

@@ -10,5 +10,6 @@
 #SBATCH --error=/tmp-network/user/%u/slurm/%j-error.err
 
 EP=$1
+FUSION=$2
 
-python train.py context --ocr yolo_phoc --embedding fisher --fusion mlb --data_path /tmp-network/user/amafla/data/ --optim radam --model RMAC_Full --epsilon $EP --save /tmp-network/user/rsampaio/models/finegrained-classif/
+python train.py context --ocr yolo_phoc --embedding fisher --fusion $FUSION --data_path /tmp-network/user/amafla/data/ --optim radam --model RMAC_Full --epsilon $EP --regularization L2 --save /tmp-network/user/rsampaio/models/finegrained-classif/

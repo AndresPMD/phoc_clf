@@ -113,7 +113,7 @@ def train(data_loader, net, optim, cuda, criterion, epoch, log_int, num_classes,
             y_true[sample][label] = 1
             precision_per_class[label] += average_precision_score(y_true[sample], predicted[sample])
 
-        if processed_batches % 10 == 0:
+        if processed_batches % 2 == 0:
             print('[Epoch: %d, Data Points Seen: %5d] Loss is: %.4f' % (epoch, seen, loss.data.cpu()))
 
         # VISUALIZATION
@@ -262,7 +262,10 @@ def main():
 
     class_weights = torch.FloatTensor(weights).cuda()
     criterion = nn.CrossEntropyLoss(weight=class_weights)
-    criterion2 = nn.MSELoss()
+    if args.regularization == 'L1':
+        criterion2 = nn.SmoothL1Loss()
+    if args.regularization == 'L2':
+        criterion2 = nn.MSELoss()
 
     evaluation = None
 
@@ -298,7 +301,8 @@ def main():
             best_epoch = epoch
             early_stop_counter = 0
             if args.save_weights:
-                save_checkpoint(net, best_perf, directory=args.save, file_name='checkpoint')
+                save_filename = 'checkpoint_' + args.fusion + '_' + args.epsilon + '_' + args.regularization + '_' + str(best_perf)
+                save_checkpoint(net, best_perf, directory=args.save, file_name=save_filename)
         else:
             if early_stop_counter == args.early_stop:
                 print('\nEarly stop reached!')

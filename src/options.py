@@ -30,7 +30,7 @@ class Options():
         parser.add_argument('--max_textual', type = int, default=15, help='Size of the text matrix.')
 
         # Splits
-        parser.add_argument('--split', '-sp', type=int, default=2, help='Train/Test splits to use.')
+        parser.add_argument('--split', '-sp', type=int, default=1, help='Train/Test splits to use.')
         parser.add_argument('--test', type=str, default='False', help='Train/Test mode')
 
         # Data Path
@@ -44,6 +44,7 @@ class Options():
 
         # RESIDUAL HYPERPARAM
         parser.add_argument('--epsilon', type=float, default=0.5, help='Hyper parameter for Balancing MSE Loss')
+        parser.add_argument('--regularization', type=str, default='L1', choices=['L1','L2'], help='choice of regularization criterion')
 
         # VISUALIZATION
 
@@ -54,20 +55,20 @@ class Options():
         parser.add_argument('--save_weights', type=bool, default=True, help='Store training weights True/False')
 
         # Optimization options
-        parser.add_argument('--epochs', '-e', type=int, default=40, help='Number of epochs to train.')
+        parser.add_argument('--epochs', '-e', type=int, default=20, help='Number of epochs to train.')
         parser.add_argument('--batch_size', '-b', type=int, default=64, help='Batch size.')
         parser.add_argument('--learning_rate', '-lr', type=float, default=1e-3, help='The Learning Rate.')
         parser.add_argument('--optim', '-o', type=str, default='radam', help='Optimizers: sgd, adam, radam(with lookAhead)')
         parser.add_argument('--momentum', '-m', type=float, default=0.9, help='Momentum.')
         parser.add_argument('--decay', '-d', type=float, default=0.0005, help='Weight decay (L2 penalty).')
-        parser.add_argument('--schedule', type=list, nargs='+', default=[15,30,45],
+        parser.add_argument('--schedule', type=list, nargs='+', default=[5,10,15],
                             help='Decrease learning rate at these epochs.')
-        parser.add_argument('--gamma', type=float, default=0.1, help='blocktuckR is multiplied by gamma on schedule.')
+        parser.add_argument('--gamma', type=float, default=0.1, help='Blocktucker is multiplied by gamma on schedule.')
         parser.add_argument('--seed', type=int, default=42, help='Random seed.')
         parser.add_argument('--save', '-s', type=str, default='../backup/',
                             help='Folder to save checkpoints.')
         parser.add_argument('--load', '-l', type=str, default=None, help='Checkpoint path to resume / test.')
-        parser.add_argument('--early_stop', '-es', type=int, default=10, help='Early stopping epochs.')
+        parser.add_argument('--early_stop', '-es', type=int, default=5, help='Early stopping epochs.')
         # Acceleration
         parser.add_argument('--ngpu', type=int, default=1, help='0 = CPU, 1 = CUDA, 1 < DataParallel')
         parser.add_argument('--prefetch', type=int, default=0, help='Pre-fetching threads.')
