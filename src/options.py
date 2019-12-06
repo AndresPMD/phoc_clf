@@ -51,7 +51,7 @@ class Options():
         parser.add_argument('--outimg_path', type=str, default='../visualization/', help='Write the attn visual path.')
 
         # STORE
-        parser.add_argument('--save_weights', type=str, default=True, help='Store training weights True/False')
+        parser.add_argument('--save_weights', type=bool, default=True, help='Store training weights True/False')
 
         # Optimization options
         parser.add_argument('--epochs', '-e', type=int, default=40, help='Number of epochs to train.')

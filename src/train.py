@@ -293,12 +293,11 @@ def main():
         performance = test(test_loader, net, args.cuda, num_classes, args.batch_size)
 
         # Early-Stop + Save model
-
         if performance > best_perf:
             best_perf = performance
             best_epoch = epoch
             early_stop_counter = 0
-            if args.save_weights == 'True':
+            if args.save_weights:
                 save_checkpoint(net, best_perf, directory=args.save, file_name='checkpoint')
         else:
             if early_stop_counter == args.early_stop:
@@ -330,7 +329,7 @@ if __name__ == '__main__':
         #print('Initialize logger')
         #ind = len(glob.glob(args.log + '*_run-batchSize_{}'.format(args.batch_size)))
         #log_dir = args.log + '{}_run-batchSize_{}/'.format(ind, args.batch_size)
-        args.save = args.save + '{}_{}_{}_{}_{}/'.format(args.dataset, args.model, args.embedding, args.ocr, args.fusion)
+        args.save = args.save + '{}_{}_{}_{}_{}_ep{}/'.format(args.dataset, args.model, args.embedding, args.ocr, args.fusion, args.epsilon)
 
         # Create logger
         #print('Log dir:\t' + log_dir)
