@@ -301,7 +301,7 @@ def main():
             best_epoch = epoch
             early_stop_counter = 0
             if args.save_weights:
-                save_filename = 'checkpoint_' + args.fusion + '_' + args.epsilon + '_' + args.regularization + '_' + str(best_perf)
+                save_filename = 'checkpoint_' + str(args.fusion) + '_' + str(args.epsilon) + '_' + str(args.regularization) + '_' + str(best_perf)
                 save_checkpoint(net, best_perf, directory=args.save, file_name=save_filename)
         else:
             if early_stop_counter == args.early_stop:
