@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 # Custom fusion modules
 from .fusion import *
-
+import pdb
 
 
 def load_model(args, classes_number, embedding_size):
@@ -34,10 +34,12 @@ def load_model(args, classes_number, embedding_size):
         return FisherNet(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
     elif args.model == 'orig_fisherNet':
         return Orig_FisherNet(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
-    elif args.model =='RMAC':
-        return RMACNet(args=args, num_classes=classes_number, embedding_size=embedding_size)
     elif args.model == 'TextNet':
         return TextNet(args = args, num_classes= classes_number, embedding_size=embedding_size, reduced_size = 512)
+    elif args.model =='RMAC':
+        return RMACNet(args=args, num_classes=classes_number, embedding_size=embedding_size)
+    elif args.model =='RMAC_Full':
+        return RMAC_Full_Net(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
     else:
         raise NameError(args.model + ' not implemented!')
 
@@ -145,7 +147,57 @@ class RMACNet(nn.Module):
         x = self.fc1(self.fc1_bn(im_feats))  # Size (BS x 512)
         return x, None
 
+class RMAC_Full_Net(nn.Module):
+    def __init__(self, args, num_classes, max_textual = 20, embedding_size = 38400, reduced_size = 512, pretrained=True, attention=True):
+        super(RMAC_Full_Net, self).__init__()
+        self.args = args
+        self.num_classes = num_classes
+        self.pretrained = pretrained
+        self.embedding_size = embedding_size
+        self.reduced_size = reduced_size
+        self.max_textual = max_textual
 
+        if self.args.fusion == 'block':
+            self.fusion = Block([reduced_size, 512], 512, mm_dim= self.args.mmdim)
+        elif self.args.fusion == 'blocktucker':
+            self.fusion = BlockTucker([reduced_size, 512], 512, mm_dim= self.args.mmdim)
+        elif self.args.fusion == 'tucker':
+            self.fusion = Tucker ([reduced_size, 512], 1512, mm_dim= self.args.mmdim)
+        elif self.args.fusion == 'mutan':
+            self.fusion = Mutan([reduced_size, 512], 512, mm_dim= self.args.mmdim)
+        elif self.args.fusion == 'mlb':
+            self.fusion = MLB([reduced_size, 512], 512, mm_dim= self.args.mmdim)
+        elif self.args.fusion == 'mfb':
+            self.fusion = MFB([reduced_size, 512], 512, mm_dim= self.args.mmdim)
+        elif self.args.fusion == 'mfh':
+            self.fusion = MFH([reduced_size, 512], 512, mm_dim= self.args.mmdim)
+
+        self.fc1_bn = nn.BatchNorm1d(512)
+        self.fc1 = nn.Linear(512, 512)
+
+        # Reduce Dimensionality of Fisher Vectors
+        self.FV_bn1 = nn.BatchNorm1d(embedding_size)
+        self.FV_fc1 = nn.Linear(embedding_size, 512)
+
+        # LAST LAYERS
+        self.bn3 = nn.BatchNorm1d(512)
+        self.fc3 = nn.Linear(512, num_classes)
+
+    def forward(self, im_feats, textual_features, sample_size):
+        x = self.fc1(self.fc1_bn(im_feats))  # Size (BS x 512)
+
+        # FISHER FEATURES
+        textual_features = F.relu(self.FV_fc1(self.FV_bn1(textual_features.view(sample_size, -1))))
+        #pdb.set_trace()
+        # Fuse
+        if self.args.fusion != 'concat':
+            fusion_vec = self.fusion([x.view(sample_size, -1),textual_features])
+        else:
+            fusion_vec = torch.cat((x, textual_features), 1)
+
+        x = F.dropout(self.fc3(self.bn3(fusion_vec)), p=0.5, training=self.training)
+
+        return x, fusion_vec
 
 class BaseNet(nn.Module):
     def __init__(self, args, num_classes, embedding_size = 300, pretrained=True, attention=True):

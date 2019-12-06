@@ -22,7 +22,7 @@ class Options():
         parser.add_argument('--ocr', type=str, default = 'e2e_mlt', choices=['textspotter','deeptextspotter','e2e_mlt', 'yolo_phoc'],
                             help='Choose between OCRs.')
 
-        parser.add_argument('--model', type=str, default='baseNet', choices=['visualNet', 'lenet', 'baseNet', 'fisherNet', 'orig_fisherNet', 'TextNet', 'RMAC'],
+        parser.add_argument('--model', type=str, default='baseNet', choices=['visualNet', 'lenet', 'baseNet', 'fisherNet', 'orig_fisherNet', 'TextNet', 'RMAC', 'RMAC_Full'],
                             help='Choose between models.')
 
         parser.add_argument('--attn', action='store_true', help='Attention module')
@@ -40,7 +40,10 @@ class Options():
                                                                              'mutan', 'tucker', 'mlb', 'mfb', 'mfh'],
                             help='Choose between fusion strategies.')
         # MULTIMODAL DIM
-        parser.add_argument('--mmdim', type=int, default=1600, help='Size of the Inner Multimodal Embedding')
+        parser.add_argument('--mmdim', type=int, default=1024, help='Size of the Inner Multimodal Embedding')
+
+        # RESIDUAL HYPERPARAM
+        parser.add_argument('--epsilon', type=float, default=0.5, help='Hyper parameter for Balancing MSE Loss')
 
         # VISUALIZATION
 

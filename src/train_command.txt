@@ -1,1 +1,5 @@
-UDA_VISIBLE_DEVICES=1 python train.py context --batch_size 64 --ocr e2e_mlt --embedding fisher --fusion mfb --data_path /datatmp/users/amafla --optim radam --model orig_fisherNet
+CUDA_VISIBLE_DEVICES=1 python train.py context --batch_size 64 --ocr e2e_mlt --embedding fisher --fusion mfb --data_path /datatmp/users/amafla --optim radam --model orig_fisherNet
+
+________________________
+
+python train.py context --ocr yolo_phoc --embedding fisher --fusion mfb --data_path /tmp-network/user/amafla/data/ --optim radam --model RMAC_Full --epsilon 0.5
