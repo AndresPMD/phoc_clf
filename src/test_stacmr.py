@@ -46,39 +46,42 @@ def test(args, net, cuda):
 
     with torch.no_grad():
         image_list = []
-        with open ('/tmp-network/user/amafla/data/cocotext_with_captions/image_list.txt','r') as fp:
+        with open ('/tmp-network/user/amafla/data/cocotext_with_captions/image_list.txt', 'r') as fp:
             image_list = fp.readlines()
-        pdb.set_trace()
-
-
-        for image in tqdm(image_list):
+        fusioned_feats = np.zeros([len(image_list), 512])
+        for idx, image in tqdm(enumerate(image_list)):
             # Load Image features
-            img_feats_path = args.base_dir + 'img_feats/' + image.split('.')[0] + 'json'
-            with open (img_feats, 'r') as fp:
+            img_feats_path = args.base_dir + 'embeddings/' + image.split('.')[0] + '.json'
+            with open (img_feats_path, 'r') as fp:
                 img_feats = json.load(fp)
             img_feats = np.asarray(img_feats)
             # Load PHOC_FV features
-            phoc_FV_path = args.base_dir + 'phoc_FV_features/' + mage.split('.')[0] + 'json'
+            phoc_FV_path = args.base_dir + 'phoc_FV_features/' + image.split('.')[0] + '.json'
             with open(phoc_FV_path, 'r') as fp:
                 textual_feats = json.load(fp)
             textual_feats = np.asarray(textual_feats)
-
             img_feats = torch.from_numpy(img_feats)
             img_feats = img_feats.type(torch.FloatTensor)
             textual_feats = torch.from_numpy(textual_feats)
-            textual_feats = torch.type(torch.FloatTensor)
+            textual_feats = textual_feats.type(torch.FloatTensor)
 
             if cuda:
                 img_feats, textual_feats = img_feats.cuda(), textual_feats.cuda()
             img_feats = Variable(img_feats)
             textual_feats = Variable(textual_feats)
 
+            img_feats = img_feats.view(-1, 512)
+            textual_feats = textual_feats.view(-1, 38400)
             output, fusion_vec_norm = net(img_feats, textual_feats, sample_size=1)
 
             features = fusion_vec_norm.cpu().numpy()
+            fusioned_feats[idx] = features
             features = features.tolist()
-            with open (args.base_dir + 'proxy_features/' + image.split('.')[0] + '.json','w') as fp:
+            with open (args.base_dir + 'proxy_features/' + image.split('.')[0] + '.json', 'w') as fp:
                 json.dump(features, fp)
+    # Save as numpy features
+    np.save('/tmp-network/user/amafla/data/cocotext_with_captions/proxy_features.npy', fusioned_feats)
+
 
     print ('Complete!')
     return
