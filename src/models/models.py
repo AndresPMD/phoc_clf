@@ -172,8 +172,6 @@ class RMAC_Full_Net(nn.Module):
         elif self.args.fusion == 'mfh':
             self.fusion = MFH([reduced_size, 512], 512, mm_dim= self.args.mmdim)
 
-        self.fc1_bn = nn.BatchNorm1d(512)
-        self.fc1 = nn.Linear(512, 512)
 
         # Reduce Dimensionality of Fisher Vectors
         self.FV_bn1 = nn.BatchNorm1d(embedding_size)
@@ -184,16 +182,14 @@ class RMAC_Full_Net(nn.Module):
         self.fc3 = nn.Linear(512, num_classes)
 
     def forward(self, im_feats, textual_features, sample_size):
-        x = self.fc1(self.fc1_bn(im_feats))  # Size (BS x 512)
-
         # FISHER FEATURES
-        textual_features = F.relu(self.FV_fc1(self.FV_bn1(textual_features.view(sample_size, -1))))
+        textual_embs = F.relu(self.FV_fc1(self.FV_bn1(textual_features.view(sample_size, -1))))
 
         # Fuse
         if self.args.fusion != 'concat':
-            fusion_vec = self.fusion([x.view(sample_size, -1),textual_features])
+            fusion_vec = self.fusion([im_feats.view(sample_size, -1),textual_embs])
         else:
-            fusion_vec = torch.cat((x, textual_features), 1)
+            fusion_vec = torch.cat((im_feats, textual_embs), 1)
         # NORM
 
         fusion_vec_norm = F.normalize(fusion_vec, p=2, dim=1)
