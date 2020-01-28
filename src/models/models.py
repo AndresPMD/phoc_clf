@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 # Custom fusion modules
 from .fusion import *
-import pdb
+
 
 
 def load_model(args, classes_number, embedding_size):
@@ -36,10 +36,7 @@ def load_model(args, classes_number, embedding_size):
         return Orig_FisherNet(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
     elif args.model == 'TextNet':
         return TextNet(args = args, num_classes= classes_number, embedding_size=embedding_size, reduced_size = 512)
-    elif args.model =='RMAC':
-        return RMACNet(args=args, num_classes=classes_number, embedding_size=embedding_size)
-    elif args.model =='RMAC_Full':
-        return RMAC_Full_Net(args = args, num_classes= classes_number, max_textual = 1, embedding_size=embedding_size, reduced_size = 512)
+
     else:
         raise NameError(args.model + ' not implemented!')
 
@@ -284,7 +281,6 @@ class BaseNet(nn.Module):
         ranking_vector = F.relu(self.fc3(self.bn3(x)))
         x = F.dropout(self.fc4(self.bn4(ranking_vector)), p=0.3, training=self.training)
         '''
-
         x = F.dropout(self.fc3(self.bn3(x)), p=0.3, training=self.training)
 
         return x, attn_mask
