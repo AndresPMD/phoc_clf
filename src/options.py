@@ -22,7 +22,7 @@ class Options():
         parser.add_argument('--ocr', type=str, default = 'e2e_mlt', choices=['textspotter','deeptextspotter','e2e_mlt', 'yolo_phoc'],
                             help='Choose between OCRs.')
 
-        parser.add_argument('--model', type=str, default='baseNet', choices=['visualNet', 'lenet', 'baseNet', 'fisherNet', 'orig_fisherNet', 'TextNet', 'RMAC', 'RMAC_Full'],
+        parser.add_argument('--model', type=str, default='baseNet', choices=['visualNet', 'lenet', 'baseNet', 'fisherNet', 'orig_fisherNet', 'TextNet', 'RMAC', 'RMAC_Full', 'Fusion_Net'],
                             help='Choose between models.')
 
         parser.add_argument('--attn', action='store_true', help='Attention module')
@@ -35,9 +35,10 @@ class Options():
 
         # Data Path
         parser.add_argument('--data_path', type=str, default='/SSD/Datasets', help='Write the dataset path.')
+        parser.add_argument('--img_embs', type=str, default='rmac', help='Type of image embedding to load')
         # Fusion Strategy
         parser.add_argument('--fusion', type=str, default='concat', choices=['concat', 'block', 'blocktucker',
-                                                                             'mutan', 'tucker', 'mlb', 'mfb', 'mfh'],
+                                                                             'mutan', 'tucker', 'mlb', 'mfb', 'mfh', 'tirg'],
                             help='Choose between fusion strategies.')
         # MULTIMODAL DIM
         parser.add_argument('--mmdim', type=int, default=1024, help='Size of the Inner Multimodal Embedding')

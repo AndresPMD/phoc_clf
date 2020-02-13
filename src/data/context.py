@@ -93,8 +93,11 @@ class Context_Train(data.Dataset):
         label = label.type(torch.FloatTensor)
 
         # LOAD RMAC FEATURES
-
-        with open ('/tmp-network/user/amafla/data/Context/data/embeddings/'+image_name[:-3]+'json','r') as fp:
+        if self.args.img_embs == 'rmac':
+            img_embs_path = os.path.join(data_path, 'embeddings')
+        elif self.args.img_embs == 'vse':
+            img_embs_path = os.path.join(data_path, 'vsepp')
+        with open (os.path.join(img_embs_path, image_name[:-3]+'json'),'r') as fp:
             rmac_feats = json.load(fp)
         rmac_feats = np.asarray(rmac_feats)
         rmac_feats = torch.from_numpy(rmac_feats)
